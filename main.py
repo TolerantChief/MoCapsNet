@@ -5,9 +5,9 @@ import torchvision.transforms as transforms
 from trainer import CapsNetTrainer
 import argparse
 
-torch.manual_seed(23545)
+#torch.manual_seed(23545)
 
-DATA_PATH = '/home/josef.gugglberger/capsule-network/data'
+DATA_PATH = '/content/data'
 
 # Collect arguments (if any)
 parser = argparse.ArgumentParser()
@@ -96,7 +96,7 @@ datasets = {
     'MNIST': torchvision.datasets.MNIST,
     'CIFAR': torchvision.datasets.CIFAR10,
     'CIFAR100': torchvision.datasets.CIFAR100,
-    'SVHN': torchvision.datasets.SVHN
+    'SVHN': torchvision.datasets.SVHN,
 }
 
 # dataset defaults
@@ -122,6 +122,12 @@ elif args.dataset.upper() == 'SVHN':
     classes = list(range(10))
     split_train = {'split': "train"}
     split_test = {'split': "test"}
+elif args.dataset.upper() == 'JAMONES':
+	args.data_path = os.path.join(args.data_path, 'JAMONES')
+	classes = list(range(26))
+	size = 32
+	split_train = {'split': "train"}
+	split_test = {'split': "test"}
 else:
     raise ValueError('Dataset must be either MNIST, SVHN or CIFAR')
 
@@ -129,21 +135,38 @@ args.num_classes = len(classes)
 
 transform = transforms.Compose([
     # shift by 2 pixels in either direction with zero padding.
+	#transforms.RandomHorizontalFlip(),
+	#transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+	#transforms.RandomGrayscale(p=0.1),
+	#transforms.RandomAffine(degrees=10, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=10),
+	#transforms.RandomPerspective(distortion_scale=0.1, p=0.5),
+	#transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0)),
+	#transforms.RandomRotation(10),
     transforms.RandomCrop(size, padding=2),
     transforms.ToTensor(),
     transforms.Normalize(mean, std)
 ])
-
 loaders = {}
-trainset = datasets[args.dataset.upper()](
-    root=args.data_path, **split_train, download=True, transform=transform)
-loaders['train'] = torch.utils.data.DataLoader(
-    trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
-testset = datasets[args.dataset.upper()](
-    root=args.data_path, **split_test, download=True, transform=transform)
-loaders['test'] = torch.utils.data.DataLoader(
-    testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+if args.dataset.upper() not in datasets:
+	test_size = 0.2
+	dataset = torchvision.datasets.ImageFolder(root=args.data_path, transform=transform)
+	num_data = len(dataset)
+	num_test = int(test_size * num_data)
+	num_train = num_data - num_test
+	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [num_train, num_test])
+	loaders['train'] = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
+	loaders['test'] = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=False)
+else:	
+	trainset = datasets[args.dataset.upper()](
+		root=args.data_path, **split_train, download=True, transform=transform)
+	loaders['train'] = torch.utils.data.DataLoader(
+		trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
+
+	testset = datasets[args.dataset.upper()](
+		root=args.data_path, **split_test, download=True, transform=transform)
+	loaders['test'] = torch.utils.data.DataLoader(
+		testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
 print(8*'#', f'Using {args.dataset.upper()} dataset', 8*'#')
 
