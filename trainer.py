@@ -11,6 +11,7 @@ from datetime import datetime
 from model import CapsuleNetwork
 from loss import CapsuleLoss
 from time import time
+from torchbearer.callbacks import EarlyStopping
 
 from ranger21 import Ranger21
 
@@ -83,6 +84,8 @@ class CapsNetTrainer:
         eye = torch.eye(len(classes)).to(self.device)
         max_memory_usage = 0
 
+        early_stopping = EarlyStopping(patience=5)
+
         for epoch in range(1, epochs+1):
             for phase in ['train', 'test']:
                 if phase == 'train':
@@ -118,6 +121,18 @@ class CapsNetTrainer:
                     total += labels.size(0)
                     correct += (predicted == labels).sum()
                     accuracy = float(correct) / float(total)
+
+                    best_test_acc = 0
+                    if phase == 'test':
+                        if accuracy > best_test_acc:
+                            best_test_acc = accuracy
+                            epochs_no_improve = 0
+                        else:
+                            epochs_no_improve +=1 
+                            if epochs_no_improve == early_stopping.patience:
+                                print('Early Stopping')
+                                print(f'The best test accuracy was {best_test_acc}')
+                                return
 
                     # measure conflicting bundles
                     if i == 0 and self.conflicts:
