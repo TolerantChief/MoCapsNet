@@ -123,15 +123,17 @@ class CapsNetTrainer:
                     accuracy = float(correct) / float(total)
 
                     best_test_acc = 0
+                    best_epoch = 0
                     if phase == 'test':
                         if accuracy > best_test_acc:
                             best_test_acc = accuracy
+                            best_epoch = epoch
                             epochs_no_improve = 0
                         else:
                             epochs_no_improve +=1 
                             if epochs_no_improve == early_stopping.patience:
                                 print('Early Stopping')
-                                print(f'The best test accuracy was {best_test_acc}')
+                                print(f'The best test accuracy was {best_test_acc} in epoch {best_epoch}')
                                 return
 
                     # measure conflicting bundles
