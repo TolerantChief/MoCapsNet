@@ -146,7 +146,7 @@ transform = transforms.Compose([
     transforms.RandomCrop(size, padding=2),
     transforms.ToTensor(),
     transforms.Normalize(mean, std)
-]
+])
 loaders = {}
 
 if args.dataset.upper() not in datasets:
