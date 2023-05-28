@@ -148,6 +148,34 @@ class CapsNetTrainer:
                         if epochs_no_improve == early_stopping.patience:
                             print('Early Stopping')
                             print(f'The best test accuracy was {best_test_acc} in epoch {best_epoch}')
+                            
+                            now = str(datetime.now()).replace(" ", "-")
+                            error_rate = round((1-accuracy)*100, 2)
+                            torch.save(self.net.state_dict(), os.path.join(
+                                SAVE_MODEL_PATH, f'{error_rate}_{now}.pth.tar'))
+                    
+                            class_correct = list(0. for _ in classes)
+                            class_total = list(0. for _ in classes)
+                            for images, labels in self.loaders['test']:
+                                images, labels = images.to(self.device), labels.to(self.device)
+                                outputs, reconstructions, _ = self.net(images)
+                                _, predicted = torch.max(outputs, 1)
+                                c = (predicted == labels).squeeze()
+                                for i in range(labels.size(0)):
+                                    label = labels[i]
+                                    class_correct[label] += c[i].item()
+                                    class_total[label] += 1
+                    
+                            print(8*'#', 'Run ended'.upper(), 8*'#')
+                    
+                            print('Accuracy of ', self.modelname)
+                            for i in range(len(classes)):
+                                print('Accuracy of %5s : %2d %%' % (
+                                    classes[i], 100 * class_correct[i] / class_total[i]))
+                    
+                            print('max. memory usage: ', max_memory_usage)
+    
+                            
                             return
                 print(
                     f'{phase.upper()};{epoch};{running_loss/(i+1)};{accuracy};{round(time()-t0, 3)}s')
