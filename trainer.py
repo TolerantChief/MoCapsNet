@@ -84,7 +84,10 @@ class CapsNetTrainer:
         eye = torch.eye(len(classes)).to(self.device)
         max_memory_usage = 0
 
-        early_stopping = EarlyStopping(patience=5)
+        early_stopping = EarlyStopping(patience=10)
+        best_test_acc = 0
+        best_epoch = 0
+        epochs_no_improve = 0
 
         for epoch in range(1, epochs+1):
             for phase in ['train', 'test']:
@@ -122,19 +125,6 @@ class CapsNetTrainer:
                     correct += (predicted == labels).sum()
                     accuracy = float(correct) / float(total)
 
-                    best_test_acc = 0
-                    best_epoch = 0
-                    if phase == 'test':
-                        if accuracy > best_test_acc:
-                            best_test_acc = accuracy
-                            best_epoch = epoch
-                            epochs_no_improve = 0
-                        else:
-                            epochs_no_improve +=1 
-                            if epochs_no_improve == early_stopping.patience:
-                                print('Early Stopping')
-                                print(f'The best test accuracy was {best_test_acc} in epoch {best_epoch}')
-                                return
 
                     # measure conflicting bundles
                     if i == 0 and self.conflicts:
@@ -148,6 +138,17 @@ class CapsNetTrainer:
                             print("Layer %d | Bundle entropy %.3f" % (i, be))
                             print("Layer %d | Number of bundles %d" % (i, nb))
 
+                if phase == 'test':
+                    if accuracy > best_test_acc:
+                        best_test_acc = accuracy
+                        best_epoch = epoch
+                        epochs_no_improve = 0
+                    else:
+                        epochs_no_improve +=1 
+                        if epochs_no_improve == early_stopping.patience:
+                            print('Early Stopping')
+                            print(f'The best test accuracy was {best_test_acc} in epoch {best_epoch}')
+                            return
                 print(
                     f'{phase.upper()};{epoch};{running_loss/(i+1)};{accuracy};{round(time()-t0, 3)}s')
 
