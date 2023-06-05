@@ -123,7 +123,7 @@ elif args.dataset.upper() == 'SVHN':
     split_train = {'split': "train"}
     split_test = {'split': "test"}
 elif args.dataset.upper() == 'JAMONES':
-	args.data_path = os.path.join(args.data_path, 'JAMONES')
+	args.data_path = os.path.join(args.data_path, 'JAMONES_CROPPED')
 	classes = list(range(26))
 	size = 50
 	split_train = {'split': "train"}
