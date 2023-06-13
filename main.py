@@ -156,8 +156,8 @@ if args.dataset.upper() not in datasets:
 	num_test = int(test_size * num_data)
 	num_train = num_data - num_test
 	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [num_train, num_test])
-	loaders['train'] = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
-	loaders['test'] = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=False)
+	loaders['train'] = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+	loaders['test'] = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 else:	
 	trainset = datasets[args.dataset.upper()](
 		root=args.data_path, **split_train, download=True, transform=transform)
