@@ -88,6 +88,8 @@ class CapsNetTrainer:
         best_test_acc = 0
         best_epoch = 0
         epochs_no_improve = 0
+        
+        history = {'train_loss': [], 'train_acc': [], 'test_loss': [], 'test_acc': []}
 
         for epoch in range(1, epochs+1):
             for phase in ['train', 'test']:
@@ -138,7 +140,12 @@ class CapsNetTrainer:
                             print("Layer %d | Bundle entropy %.3f" % (i, be))
                             print("Layer %d | Number of bundles %d" % (i, nb))
 
+                if phase == 'train':
+                    history['train_loss'].append(running_loss/(i+i))
+                    history['train_acc'].append(accuracy)
                 if phase == 'test':
+                    history['test_loss'].append(running_loss/(i+i))
+                    history['test_acc'].append(accuracy)
                     if accuracy > best_test_acc:
                         best_test_acc = accuracy
                         best_epoch = epoch
@@ -174,7 +181,31 @@ class CapsNetTrainer:
                                     classes[i], 100 * class_correct[i] / class_total[i]))
                     
                             print('max. memory usage: ', max_memory_usage)
-    
+                        
+                            epochs = range(1, epoch + 1)
+                            
+                            plt.figure()
+                            
+                            plt.subplot(2, 1, 1)
+                            
+                            plt.plot(epochs, history['train_acc'], label='Training Accuracy')
+                            plt.plot(epochs, history['test_acc'], label='Validation Accuracy')
+                            plt.xlabel('Epochs')
+                            plt.ylabel('Accuracy')
+                            plt.title('Training and Validation Accuracy')
+                            plt.legend()
+                            
+                            plt.subplot(2,1,2)
+                            
+                            plt.plot(epochs, history['train_loss'], label='Training Loss')
+                            plt.plot(epochs, history['test_loss'], label='Validation Loss')
+                            plt.xlabel('Epochs')
+                            plt.ylabel('Loss')
+                            plt.title('Training and Validation Loss')
+                            plt.legend()
+                            
+                            plt.tight_layout()
+                            plt.show()    
                             
                             return
                 print(
