@@ -141,10 +141,10 @@ class CapsNetTrainer:
                             print("Layer %d | Number of bundles %d" % (i, nb))
 
                 if phase == 'train':
-                    history['train_loss'].append(running_loss/(i+i))
+                    history['train_loss'].append(running_loss/(i+1))
                     history['train_acc'].append(accuracy)
                 if phase == 'test':
-                    history['test_loss'].append(running_loss/(i+i))
+                    history['test_loss'].append(running_loss/(i+1))
                     history['test_acc'].append(accuracy)
                     if accuracy > best_test_acc:
                         best_test_acc = accuracy
