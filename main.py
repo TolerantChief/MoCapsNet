@@ -128,6 +128,13 @@ elif args.dataset.upper() == 'JAMONES':
 	size = 50
 	split_train = {'split': "train"}
 	split_test = {'split': "test"}
+elif args.dataset.upper() == 'BRAIN_TUMOR':
+	args.data_path = os.path.join(args.data_path, 'brain_tumor_dataset')
+	classes = list(range(2))
+	size = (218, 180)
+	split_train = {'split': "train"}
+	split_test = {'split': "test"}
+
 else:
     raise ValueError('Dataset must be either MNIST, SVHN or CIFAR')
 
