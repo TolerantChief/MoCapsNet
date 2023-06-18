@@ -205,7 +205,9 @@ class CapsNetTrainer:
                             plt.legend()
                             
                             plt.tight_layout()
-                            plt.show()    
+                            # plt.show()    
+
+                            plt.savefig('loss_accuracy.png')
                             
                             return
                 print(
