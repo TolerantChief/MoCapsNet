@@ -142,7 +142,7 @@ args.num_classes = len(classes)
 
 transform = transforms.Compose([
     # shift by 2 pixels in either direction with zero padding.
-    transforms.Resize((size,size)),
+    transforms.Resize(size),
     transforms.RandomHorizontalFlip(),
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
     transforms.RandomGrayscale(p=0.1),
